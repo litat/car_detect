@@ -65,7 +65,7 @@ public:
 	void getimage(Mat src)
 	{
 
-		if(! src.data )
+		if(!src.data)
 		{
 			cout << "src not filled" << endl ;
 		}
@@ -84,7 +84,7 @@ public:
 	{
 		cascade.load(cascade_string);
 
-		if( !cascade.load(cascade_string) )
+		if(!cascade.load(cascade_string))
 		{
 			cout << endl << "Could not load classifier cascade" << endl;
 		}
@@ -99,7 +99,7 @@ public:
 	{
 		checkcascade.load(checkcascade_string);
 
-		if( !checkcascade.load(checkcascade_string) )
+		if(!checkcascade.load(checkcascade_string))
 		{
 			cout << endl << "Could not load classifier checkcascade" << endl;
 		}
@@ -112,17 +112,19 @@ public:
 	// function to display input
 	void display_input()
 	{
-		namedWindow("display_input");
-		imshow("display_input", image_input);
+		String display_input_window_name = "display_input";
+		namedWindow(display_input_window_name);
+		imshow(display_input_window_name, image_input);
 	}
 
 	// function to display output
 	void display_output()
 	{
-		if(!image_main_result.empty() )
+		if(!image_main_result.empty())
 		{
-			namedWindow("display_output");
-			imshow("display_output", image_main_result);
+			String display_output_window_name = "display_output";
+			namedWindow(display_output_window_name);
+			imshow(display_output_window_name, image_main_result);
 		}
 	}
 
@@ -142,39 +144,41 @@ public:
 		// then it will not be available for other one
 		Mat temp;
 
-		if(img.empty() )
+		if(img.empty())
 		{
-			cout << endl << "detect not successful" << endl;
+			cout << endl << "Image is empty." << endl;
 		}
 
 		int cen_x;
 		int cen_y;
 		vector<Rect> cars;
-		const static Scalar colors[] = { CV_RGB(0, 0, 255),\
-			CV_RGB(0, 255, 0),\
-			CV_RGB(255, 0, 0),\
-			CV_RGB(255, 255, 0),\
-			CV_RGB(255, 0, 255),\
-			CV_RGB(0, 255, 255),\
-			CV_RGB(255, 255, 255),\
-			CV_RGB(128, 0, 0),\
-			CV_RGB(0, 128, 0),\
-			CV_RGB(0, 0, 128),\
-			CV_RGB(128, 128, 128),\
+		const static Scalar colors[] = { CV_RGB(0, 0, 255), \
+			CV_RGB(0, 255, 0), \
+			CV_RGB(255, 0, 0), \
+			CV_RGB(255, 255, 0), \
+			CV_RGB(255, 0, 255), \
+			CV_RGB(0, 255, 255), \
+			CV_RGB(255, 255, 255), \
+			CV_RGB(128, 0, 0), \
+			CV_RGB(0, 128, 0), \
+			CV_RGB(0, 0, 128), \
+			CV_RGB(128, 128, 128), \
 			CV_RGB(0, 0, 0)};
 
 			Mat gray;
 
-			cvtColor( img, gray, CV_BGR2GRAY );
+			cvtColor(img, gray, CV_BGR2GRAY);
 
-			Mat resize_image(cvRound (img.rows), cvRound(img.cols), CV_8UC1 );
+			Mat resize_image(cvRound (img.rows), cvRound(img.cols), CV_8UC1);
 
-			resize( gray, resize_image, resize_image.size(), 0, 0, INTER_LINEAR );
-			equalizeHist( resize_image, resize_image );
+			resize(gray, resize_image, resize_image.size(), 0, 0, INTER_LINEAR);
+			equalizeHist(resize_image, resize_image);
 			// detection using main classifier
 			cascade.detectMultiScale( resize_image, cars, 1.1, 2, 0, Size(10, 10));
 
-			for( vector<Rect>::const_iterator main = cars.begin(); main != cars.end(); main++, i++ )
+			for(vector<Rect>::const_iterator main = cars.begin();\
+			    main != cars.end();\
+			    main++, i++)
 			{
 				Mat resize_image_reg_of_interest;
 				vector<Rect> nestedcars;
@@ -187,19 +191,19 @@ public:
 				int x1 = cvRound((main->x + main->width-1));
 				int y1 = cvRound((main->y + main->height-1));
 
-				if( checkcascade.empty() )
+				if(checkcascade.empty())
 					continue;
 
 				resize_image_reg_of_interest = resize_image(*main);
-				checkcascade.detectMultiScale( resize_image_reg_of_interest,\
-				                              nestedcars,\
-				                              1.1, 2, 0,\
+				checkcascade.detectMultiScale( resize_image_reg_of_interest, \
+				                              nestedcars, \
+				                              1.1, 2, 0, \
 				                              Size(30, 30));
 
 				// testing the detected car by main using checkcascade
 				for( vector<Rect>::const_iterator sub = nestedcars.begin();\
 				    sub != nestedcars.end();\
-				    sub++ )
+				    sub++)
 				{
 					// getting center points for bouding a circle over the car detected by checkcascade
 					center.x = cvRound((main->x + sub->x + sub->width*0.5));
@@ -226,18 +230,18 @@ public:
 				}
 			}
 
-			if(image_main_result.empty() )
+			if(image_main_result.empty())
 			{
 				cout << endl << "result storage not successful" << endl;
 			}
 		}
 	};
 
-	int main( int argc, const char** argv )
+	int main(int argc, const char** argv)
 	{
-		double t = 0;
+		// double t = 0;
 		// starting timer
-		t = (double)cvGetTickCount();
+		// t = (double)cvGetTickCount();
 
 		// creating a object
 		cars detectcars;
@@ -249,9 +253,9 @@ public:
 		detectcars.setnum();
 
 		// Applying various cascades for a finer search.
-		string cascades[] = {"./cascades/cas1.xml",\
-		"./cascades/cas2.xml",\
-		"./cascades/cas3.xml",\
+		string cascades[] = {"./cascades/cas1.xml", \
+		"./cascades/cas2.xml", \
+		"./cascades/cas3.xml", \
 		"./cascades/cas4.xml"};
 		for (int i = 0; i < 4; i++)
 		{
@@ -265,7 +269,7 @@ public:
 		VideoCapture capture(input_file_name);
 		if (capture.isOpened())
 		{
-			cout << "Capture is opened." << endl;
+			cout << "Capture opened." << endl;
 			for (;;)
 			{
 				capture >> image1;
@@ -282,7 +286,7 @@ public:
 				detectcars.findcars();
 
 				// stopping the timer
-				t = (double)cvGetTickCount() - t;
+				// t = (double)cvGetTickCount() - t;
 
 				// displaying the final result
 				detectcars.display_output();
