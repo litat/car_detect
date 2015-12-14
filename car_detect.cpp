@@ -1,20 +1,14 @@
 /*
-
-
- * @file car_detect.cpp
- * @author Abhishek Kumar Annamraju
-
-
-
 This code provides faster car detection.
 
 Also for the first time multiple cascade files are used to detect objects,
- with a benefit that no two objects
+with a benefit that no two objects
 are detected twice.
 
 Ever car detected in an image goes through a two stage testing.
 
-The number of checkcascades are set to 1.It is desirable not to change this number.
+The number of checkcascades are set to 1.
+It is desirable not to change this number.
 
 USAGE: ./car_detect /path/to/VIDEO
 
@@ -90,7 +84,7 @@ public:
 		}
 		else
 		{
-			cout << "cascade : " << cascade_string << " loaded" << endl;
+			// cout << "cascade : " << cascade_string << " loaded" << endl;
 		}
 	}
 
@@ -105,14 +99,14 @@ public:
 		}
 		else
 		{
-			cout<< "checkcascade : " << checkcascade_string << " loaded" << endl;
+			// cout<< "checkcascade : " << checkcascade_string << " loaded" << endl;
 		}
 	}
 
 	// function to display input
 	void display_input()
 	{
-		String display_input_window_name = "display_input";
+		String display_input_window_name = "Display Input";
 		namedWindow(display_input_window_name);
 		imshow(display_input_window_name, image_input);
 	}
@@ -122,7 +116,7 @@ public:
 	{
 		if(!image_main_result.empty())
 		{
-			String display_output_window_name = "display_output";
+			String display_output_window_name = "Display Output";
 			namedWindow(display_output_window_name);
 			imshow(display_output_window_name, image_main_result);
 		}
@@ -171,10 +165,12 @@ public:
 
 			Mat resize_image(cvRound (img.rows), cvRound(img.cols), CV_8UC1);
 
-			resize(gray, resize_image, resize_image.size(), 0, 0, INTER_LINEAR);
-			equalizeHist(resize_image, resize_image);
+			// resize(gray, resize_image, resize_image.size(), 0, 0, INTER_LINEAR);
+			resize_image = gray;
+			// equalizeHist(resize_image, resize_image);
 			// detection using main classifier
-			cascade.detectMultiScale( resize_image, cars, 1.1, 2, 0, Size(10, 10));
+			// cascade.detectMultiScale(resize_image, cars, 1.1, 2, 0, Size(10, 10));
+			cascade.detectMultiScale(resize_image, cars, 1.1, 15, 0, Size(5, 50));
 
 			for(vector<Rect>::const_iterator main = cars.begin();\
 			    main != cars.end();\
@@ -183,7 +179,8 @@ public:
 				Mat resize_image_reg_of_interest;
 				vector<Rect> nestedcars;
 				Point center;
-				Scalar color = colors[i%8];
+				// Scalar color = colors[i%8];
+				Scalar color = colors[2];
 
 				// getting points for bouding a rectangle over the car detected by main
 				int x0 = cvRound(main->x);
@@ -195,13 +192,13 @@ public:
 					continue;
 
 				resize_image_reg_of_interest = resize_image(*main);
-				checkcascade.detectMultiScale( resize_image_reg_of_interest, \
+				checkcascade.detectMultiScale(resize_image_reg_of_interest, \
 				                              nestedcars, \
 				                              1.1, 2, 0, \
 				                              Size(30, 30));
 
 				// testing the detected car by main using checkcascade
-				for( vector<Rect>::const_iterator sub = nestedcars.begin();\
+				for(vector<Rect>::const_iterator sub = nestedcars.begin();\
 				    sub != nestedcars.end();\
 				    sub++)
 				{
@@ -214,9 +211,9 @@ public:
 					// over a threshold the the car is certified
 					if(cen_x>(x0+15) && cen_x<(x1-15) && cen_y>(y0+15) && cen_y<(y1-15))
 					{
-						rectangle( image_main_result, cvPoint(x0, y0),
+						rectangle(image_main_result, cvPoint(x0, y0),
 						          cvPoint(x1, y1),
-						          // detecting boundary rectangle over the final result
+											// detecting boundary rectangle over the final result
 						          color, 3, 8, 0);
 
 						// masking the detected car to detect second car if present
@@ -269,7 +266,7 @@ public:
 		VideoCapture capture(input_file_name);
 		if (capture.isOpened())
 		{
-			cout << "Capture opened." << endl;
+			// cout << "Capture opened." << endl;
 			for (;;)
 			{
 				capture >> image1;
@@ -279,7 +276,9 @@ public:
 				}
 
 				// resizing image to get best experimental results
-				resize(image1, image, Size(640, 360), 0, 0, INTER_LINEAR);
+				// resize(image1, image, Size(640, 360), 0, 0, INTER_LINEAR);
+
+				image = image1;
 
 				// get the image
 				detectcars.getimage(image);
@@ -294,7 +293,7 @@ public:
 				if (waitKey(1) >= 0)
 				{
 					capture.release();
-					cout << "Capture released." << endl;
+					// cout << "Capture released." << endl;
 					break;
 				}
 			}
