@@ -209,12 +209,12 @@ int main( int argc,  const char** argv )
 
 	// string checkcas = argv[2];
 	// detectcars.checkcascade_load(checkcas);      //load the test cascade
-	detectcars.checkcascade_load("./checkcas.xml");      //load the test cascade
+	detectcars.checkcascade_load("./cascades/checkcas.xml");      //load the test cascade
 
 	detectcars.setnum();                  //set number of cars detected as 0
 
 	// Applying various cascades for a finer search.
-	string cascades[] = {"./cas1.xml", "./cas2.xml", "./cas3.xml", "./cas4.xml"};
+	string cascades[] = {"./cascades/cas1.xml", "./cascades/cas2.xml", "./cascades/cas3.xml", "./cascades/cas4.xml"};
 	for (int i = 0; i < 4; i++)
 	{
 		string cas = cascades[i];
