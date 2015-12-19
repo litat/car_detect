@@ -146,17 +146,17 @@ public:
 		int cen_x;
 		int cen_y;
 		vector<Rect> cars;
-		const static Scalar colors[] = { CV_RGB(0, 0, 255), \
-			CV_RGB(0, 255, 0), \
-			CV_RGB(255, 0, 0), \
-			CV_RGB(255, 255, 0), \
-			CV_RGB(255, 0, 255), \
-			CV_RGB(0, 255, 255), \
-			CV_RGB(255, 255, 255), \
-			CV_RGB(128, 0, 0), \
-			CV_RGB(0, 128, 0), \
-			CV_RGB(0, 0, 128), \
-			CV_RGB(128, 128, 128), \
+		const static Scalar colors[] = { CV_RGB(0, 0, 255),
+			CV_RGB(0, 255, 0),
+			CV_RGB(255, 0, 0),
+			CV_RGB(255, 255, 0),
+			CV_RGB(255, 0, 255),
+			CV_RGB(0, 255, 255),
+			CV_RGB(255, 255, 255),
+			CV_RGB(128, 0, 0),
+			CV_RGB(0, 128, 0),
+			CV_RGB(0, 0, 128),
+			CV_RGB(128, 128, 128),
 			CV_RGB(0, 0, 0)};
 
 			Mat gray;
@@ -172,8 +172,8 @@ public:
 			// cascade.detectMultiScale(resize_image, cars, 1.1, 2, 0, Size(10, 10));
 			cascade.detectMultiScale(resize_image, cars, 1.1, 15, 0, Size(5, 50));
 
-			for(vector<Rect>::const_iterator main = cars.begin();\
-			    main != cars.end();\
+			for(vector<Rect>::const_iterator main = cars.begin();
+			    main != cars.end();
 			    main++, i++)
 			{
 				Mat resize_image_reg_of_interest;
@@ -192,14 +192,14 @@ public:
 					continue;
 
 				resize_image_reg_of_interest = resize_image(*main);
-				checkcascade.detectMultiScale(resize_image_reg_of_interest, \
-				                              nestedcars, \
-				                              1.1, 2, 0, \
-				                              Size(30, 30));
+				checkcascade.detectMultiScale(resize_image_reg_of_interest,
+				                              nestedcars,
+				                              1.1, 1, 0,
+				                              Size(5, 50));
 
 				// testing the detected car by main using checkcascade
-				for(vector<Rect>::const_iterator sub = nestedcars.begin();\
-				    sub != nestedcars.end();\
+				for(vector<Rect>::const_iterator sub = nestedcars.begin();
+				    sub != nestedcars.end();
 				    sub++)
 				{
 					// getting center points for bouding a circle over the car detected by checkcascade
@@ -214,7 +214,7 @@ public:
 						rectangle(image_main_result, cvPoint(x0, y0),
 						          cvPoint(x1, y1),
 											// detecting boundary rectangle over the final result
-						          color, 3, 8, 0);
+						          color, (x1-x0)/40, 8, 0);
 
 						// masking the detected car to detect second car if present
 						Rect region_of_interest = Rect(x0, y0, x1-x0, y1-y0);
@@ -247,13 +247,15 @@ public:
 		detectcars.checkcascade_load("./cascades/checkcas.xml");
 
 		// set number of cars detected as 0
-		detectcars.setnum();
+		// detectcars.setnum();
 
 		// Applying various cascades for a finer search.
-		string cascades[] = {"./cascades/cas1.xml", \
-		"./cascades/cas2.xml", \
-		"./cascades/cas3.xml", \
-		"./cascades/cas4.xml"};
+		string cascades[] = {
+			"./cascades/cas1.xml",
+			"./cascades/cas2.xml",
+			"./cascades/cas3.xml",
+			"./cascades/cas4.xml"
+		};
 		for (int i = 0; i < 4; i++)
 		{
 			string cas = cascades[i];
