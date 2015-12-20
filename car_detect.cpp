@@ -23,22 +23,13 @@ and the rest are the main cascades
 #include <iostream>
 #include <iterator>
 
-
 using namespace std;
 using namespace cv;
-
-
-void help()
-{
-	cout << endl << "USAGE: ./car_detect /path/to/VIDEO" << endl;
-	cout << endl << "ckeckcas.xml is the one trained with\
-	smallest size parameters and the rest are the main cascades" << endl;
-}
 
 // main class
 class cars
 {
-	// variables kept public but precaution taken all over the code
+// variables kept public but precaution taken all over the code
 public:
 
 	// main input image
@@ -52,8 +43,6 @@ public:
 	CascadeClassifier cascade;
 	// a test classifier, car detected by both main and test is stated as car
 	CascadeClassifier checkcascade;
-
-	int num;
 
 	// getting the input image
 	void getimage(Mat src)
@@ -76,39 +65,19 @@ public:
 	// loading the main cascade
 	void cascade_load(string cascade_string)
 	{
-		cascade.load(cascade_string);
-
 		if(!cascade.load(cascade_string))
 		{
 			cout << endl << "Could not load classifier cascade" << endl;
-		}
-		else
-		{
-			// cout << "cascade : " << cascade_string << " loaded" << endl;
 		}
 	}
 
 	// loading the test/check cascade
 	void checkcascade_load(string checkcascade_string)
 	{
-		checkcascade.load(checkcascade_string);
-
 		if(!checkcascade.load(checkcascade_string))
 		{
 			cout << endl << "Could not load classifier checkcascade" << endl;
 		}
-		else
-		{
-			// cout<< "checkcascade : " << checkcascade_string << " loaded" << endl;
-		}
-	}
-
-	// function to display input
-	void display_input()
-	{
-		String display_input_window_name = "Display Input";
-		namedWindow(display_input_window_name);
-		imshow(display_input_window_name, image_input);
 	}
 
 	// function to display output
@@ -120,11 +89,6 @@ public:
 			namedWindow(display_output_window_name);
 			imshow(display_output_window_name, image_main_result);
 		}
-	}
-
-	void setnum()
-	{
-		num = 0;
 	}
 
 	// main function
@@ -146,58 +110,49 @@ public:
 		int cen_x;
 		int cen_y;
 		vector<Rect> cars;
-		const static Scalar colors[] = { CV_RGB(0, 0, 255),
-			CV_RGB(0, 255, 0),
-			CV_RGB(255, 0, 0),
-			CV_RGB(255, 255, 0),
-			CV_RGB(255, 0, 255),
-			CV_RGB(0, 255, 255),
-			CV_RGB(255, 255, 255),
-			CV_RGB(128, 0, 0),
-			CV_RGB(0, 128, 0),
-			CV_RGB(0, 0, 128),
-			CV_RGB(128, 128, 128),
-			CV_RGB(0, 0, 0)};
 
-			Mat gray;
+		Mat gray;
 
-			cvtColor(img, gray, CV_BGR2GRAY);
+		cvtColor(img, gray, CV_BGR2GRAY);
 
-			Mat resize_image(cvRound (img.rows), cvRound(img.cols), CV_8UC1);
+		Mat resize_image(cvRound (img.rows), cvRound(img.cols), CV_8UC1);
 
-			// resize(gray, resize_image, resize_image.size(), 0, 0, INTER_LINEAR);
-			resize_image = gray;
-			// equalizeHist(resize_image, resize_image);
-			// detection using main classifier
-			// cascade.detectMultiScale(resize_image, cars, 1.1, 2, 0, Size(10, 10));
-			cascade.detectMultiScale(resize_image, cars, 1.1, 15, 0, Size(5, 50));
+		// resize(gray, resize_image, resize_image.size(), 0, 0, INTER_LINEAR);
+		resize_image = gray;
+		// equalizeHist(resize_image, resize_image);
+		// detection using main classifier
+		// cascade.detectMultiScale(resize_image, cars, 1.1, 2, 0, Size(10, 10));
+		cascade.detectMultiScale(resize_image, cars, 1.1, 15, 0, Size(5, 50));
 
-			for(vector<Rect>::const_iterator main = cars.begin();
-			    main != cars.end();
-			    main++, i++)
-			{
-				Mat resize_image_reg_of_interest;
-				vector<Rect> nestedcars;
-				Point center;
-				// Scalar color = colors[i%8];
-				Scalar color = colors[2];
+		for(vector<Rect>::const_iterator main = cars.begin();
+		    main != cars.end();
+		    main++, i++)
+		{
+			Mat resize_image_reg_of_interest;
+			vector<Rect> nestedcars;
+			Point center;
+			// Scalar color = colors[i%8];
+			Scalar color = CV_RGB(255, 0, 0);
 
-				// getting points for bouding a rectangle over the car detected by main
-				int x0 = cvRound(main->x);
-				int y0 = cvRound(main->y);
-				int x1 = cvRound((main->x + main->width-1));
-				int y1 = cvRound((main->y + main->height-1));
+			// getting points for bouding a rectangle over the car detected by main
+			int x0 = cvRound(main->x);
+			int y0 = cvRound(main->y);
+			int x1 = cvRound((main->x + main->width-1));
+			int y1 = cvRound((main->y + main->height-1));
 
-				if(checkcascade.empty())
-					continue;
+			if(checkcascade.empty())
+				continue;
 
-				resize_image_reg_of_interest = resize_image(*main);
-				checkcascade.detectMultiScale(resize_image_reg_of_interest,
-				                              nestedcars,
-				                              1.1, 1, 0,
-				                              Size(5, 50));
-
-				// testing the detected car by main using checkcascade
+			resize_image_reg_of_interest = resize_image(*main);
+			checkcascade.detectMultiScale(resize_image_reg_of_interest,
+			                              nestedcars,
+			                              1.1, 1, 0,
+			                              Size(5, 50));
+			rectangle(image_main_result, cvPoint(x0, y0),
+			          cvPoint(x1, y1),
+								// detecting boundary rectangle over the final result
+			          color, (x1-x0)/50, 8, 0);
+			// testing the detected car by main using checkcascade
 				for(vector<Rect>::const_iterator sub = nestedcars.begin();
 				    sub != nestedcars.end();
 				    sub++)
@@ -209,99 +164,98 @@ public:
 					cen_y = center.y;
 					// if centre of bounding circle is inside the rectangle boundary
 					// over a threshold the the car is certified
-					if(cen_x>(x0+15) && cen_x<(x1-15) && cen_y>(y0+15) && cen_y<(y1-15))
+					if(cen_x>(x0+10) && cen_x<(x1-10) && cen_y>(y0+10) && cen_y<(y1-10))
 					{
 						rectangle(image_main_result, cvPoint(x0, y0),
 						          cvPoint(x1, y1),
 											// detecting boundary rectangle over the final result
-						          color, (x1-x0)/40, 8, 0);
+						          color, (x1-x0)/50, 8, 0);
 
 						// masking the detected car to detect second car if present
-						Rect region_of_interest = Rect(x0, y0, x1-x0, y1-y0);
-						temp = storage(region_of_interest);
-						temp = Scalar(255, 255, 255);
-
-						// num if number of cars detected
-						num = num+1;
+						// Rect region_of_interest = Rect(x0, y0, x1-x0, y1-y0);
+						// temp = storage(region_of_interest);
+						// temp = Scalar(255, 255, 255);
 					}
 				}
-			}
-
-			if(image_main_result.empty())
-			{
-				cout << endl << "result storage not successful" << endl;
-			}
 		}
-	};
 
-	int main(int argc, const char** argv)
-	{
-		// double t = 0;
-		// starting timer
-		// t = (double)cvGetTickCount();
-
-		// creating a object
-		cars detectcars;
-
-		// load the test cascade
-		detectcars.checkcascade_load("./cascades/checkcas.xml");
-
-		// set number of cars detected as 0
-		// detectcars.setnum();
-
-		// Applying various cascades for a finer search.
-		string cascades[] = {
-			"./cascades/cas1.xml",
-			"./cascades/cas2.xml",
-			"./cascades/cas3.xml",
-			"./cascades/cas4.xml"
-		};
-		for (int i = 0; i < 4; i++)
+		if(image_main_result.empty())
 		{
-			string cas = cascades[i];
-			detectcars.cascade_load(cas);
+			cout << endl << "result storage not successful" << endl;
 		}
-
-		Mat image1, image;
-
-		String input_file_name = argv[1];
-		VideoCapture capture(input_file_name);
-		if (capture.isOpened())
-		{
-			// cout << "Capture opened." << endl;
-			for (;;)
-			{
-				capture >> image1;
-				if (image1.empty())
-				{
-					break;
-				}
-
-				// resizing image to get best experimental results
-				// resize(image1, image, Size(640, 360), 0, 0, INTER_LINEAR);
-
-				image = image1;
-
-				// get the image
-				detectcars.getimage(image);
-				detectcars.findcars();
-
-				// stopping the timer
-				// t = (double)cvGetTickCount() - t;
-
-				// displaying the final result
-				detectcars.display_output();
-
-				if (waitKey(1) >= 0)
-				{
-					capture.release();
-					// cout << "Capture released." << endl;
-					break;
-				}
-			}
-		} else {
-			cout << "No capture" << endl;
-		}
-
-		return 0;
 	}
+};
+
+Mat image;
+cars detectcars;
+
+void load_cascade() {
+	detectcars.checkcascade_load("./cascades/checkcas.xml");
+
+	// Applying various cascades for a finer search.
+	string cascades[] = {
+		"./cascades/cas1.xml",
+		"./cascades/cas2.xml",
+		"./cascades/cas3.xml",
+		"./cascades/cas4.xml"
+	};
+	for (int i = 0; i < 4; i++)
+	{
+		string cas = cascades[i];
+		detectcars.cascade_load(cas);
+	}
+}
+
+void videoCaptureWrap(string input_file_name, void (*callback)(void)){
+	VideoCapture capture(input_file_name);
+	if (capture.isOpened())
+	{
+		for (;;)
+		{
+			capture >> image;
+			if (image.empty())
+			{
+				break;
+			}
+
+			callback();
+
+			if (waitKey(1) >= 0)
+			{
+				break;
+			}
+		}
+	} else {
+		cout << "No capture" << endl;
+	}
+	capture.release();
+}
+
+void imageReadWrap(string input_file_name, void(*callback)(void)){
+	image = imread(input_file_name);
+
+	callback();
+
+	waitKey(0);
+}
+
+void run_find_car(){
+	// get the image
+	detectcars.getimage(image);
+	detectcars.findcars();
+	// displaying the final result
+	detectcars.display_output();
+}
+
+int main(int argc, const char** argv)
+{
+	// load the test cascade
+	load_cascade();
+
+	String input_file_name = argv[1];
+
+	// videoCaptureWrap(input_file_name, &run_find_car);
+	imageReadWrap(input_file_name, &run_find_car);
+
+	return 0;
+}
