@@ -91,6 +91,54 @@ public:
 		}
 	}
 
+	void drawMarks(vector<Rect> input_rectangles)
+	{
+		groupRectangles(input_rectangles, 0, 100);
+		Scalar color = CV_RGB(255, 0, 0);
+
+		for (int i = 0; i < input_rectangles.size(); ++i)
+		{
+			Rect rect = input_rectangles[i];
+			int width = rect.width/40;
+			// draw rectangle
+			// rectangle(image_main_result, rect, color, width);
+
+			// draw exclamation mark
+			drawExclamationMark(rect);
+		}
+	}
+
+	void drawExclamationMark(Rect rect) {
+		Scalar color = Scalar(0, 0, 255);
+		Point rect_center = Point(rect.x+rect.width/2, rect.y+rect.height/2);
+		int times = -1 * rect.width / 30;
+
+		// exclamation mark
+		vector<Point> exclamationMarkUpper;
+		exclamationMarkUpper.push_back(rect_center + Point(2, 7) * times);
+		exclamationMarkUpper.push_back(rect_center + Point(2, -2) * times);
+		exclamationMarkUpper.push_back(rect_center + Point(-2, -2) * times);
+		exclamationMarkUpper.push_back(rect_center + Point(-2, 7) * times);
+
+		vector<Point> exclamationMarkLower;
+		exclamationMarkLower.push_back(rect_center + Point(2, -3) * times);
+		exclamationMarkLower.push_back(rect_center + Point(2, -7) * times);
+		exclamationMarkLower.push_back(rect_center + Point(-2, -7) * times);
+		exclamationMarkLower.push_back(rect_center + Point(-2, -3) * times);
+
+		const Point *pts_upper = (const Point*) Mat(exclamationMarkUpper).data;
+		int npts_upper = Mat(exclamationMarkUpper).rows;
+		const Point *pts_lower = (const Point*) Mat(exclamationMarkLower).data;
+		int npts_lower = Mat(exclamationMarkLower).rows;
+
+		fillPoly(image_main_result, &pts_upper, &npts_upper, 1, color);
+		fillPoly(image_main_result, &pts_lower, &npts_lower, 1, color);
+		// polylines(image_main_result, &pts_upper, &npts_upper, 1, true,
+		//           color, rect.width/60, CV_AA, 0);
+		// polylines(image_main_result, &pts_lower, &npts_lower, 1, true,
+		//           color, rect.width/60, CV_AA, 0);
+	}
+
 	// main function
 	void findcars()
 	{
@@ -115,14 +163,12 @@ public:
 
 		cvtColor(img, gray, CV_BGR2GRAY);
 
+		GaussianBlur(gray, gray, Size(7, 7), 3);
+
 		Mat resize_image(cvRound (img.rows), cvRound(img.cols), CV_8UC1);
 
-		// resize(gray, resize_image, resize_image.size(), 0, 0, INTER_LINEAR);
 		resize_image = gray;
-		// equalizeHist(resize_image, resize_image);
-		// detection using main classifier
-		// cascade.detectMultiScale(resize_image, cars, 1.1, 2, 0, Size(10, 10));
-		cascade.detectMultiScale(resize_image, cars, 1.1, 15, 0, Size(5, 50));
+		cascade.detectMultiScale(resize_image, cars, 1.1, 15, 0, Size(20, 30));
 
 		for(vector<Rect>::const_iterator main = cars.begin();
 		    main != cars.end();
@@ -131,52 +177,48 @@ public:
 			Mat resize_image_reg_of_interest;
 			vector<Rect> nestedcars;
 			Point center;
-			// Scalar color = colors[i%8];
-			Scalar color = CV_RGB(255, 0, 0);
 
-			// getting points for bouding a rectangle over the car detected by main
+			// getting points for bouding a rect over the car detected by main
 			int x0 = cvRound(main->x);
 			int y0 = cvRound(main->y);
 			int x1 = cvRound((main->x + main->width-1));
 			int y1 = cvRound((main->y + main->height-1));
 
+			vector<Rect> input_rectangles;
+
 			if(checkcascade.empty())
 				continue;
 
 			resize_image_reg_of_interest = resize_image(*main);
+			// testing the detected car by main using checkcascade
 			checkcascade.detectMultiScale(resize_image_reg_of_interest,
 			                              nestedcars,
 			                              1.1, 1, 0,
 			                              Size(5, 50));
-			rectangle(image_main_result, cvPoint(x0, y0),
-			          cvPoint(x1, y1),
-								// detecting boundary rectangle over the final result
-			          color, (x1-x0)/50, 8, 0);
-			// testing the detected car by main using checkcascade
-				for(vector<Rect>::const_iterator sub = nestedcars.begin();
-				    sub != nestedcars.end();
-				    sub++)
-				{
-					// getting center points for bouding a circle over the car detected by checkcascade
-					center.x = cvRound((main->x + sub->x + sub->width*0.5));
-					cen_x = center.x;
-					center.y = cvRound((main->y + sub->y + sub->height*0.5));
-					cen_y = center.y;
-					// if centre of bounding circle is inside the rectangle boundary
-					// over a threshold the the car is certified
-					if(cen_x>(x0+10) && cen_x<(x1-10) && cen_y>(y0+10) && cen_y<(y1-10))
-					{
-						rectangle(image_main_result, cvPoint(x0, y0),
-						          cvPoint(x1, y1),
-											// detecting boundary rectangle over the final result
-						          color, (x1-x0)/50, 8, 0);
 
-						// masking the detected car to detect second car if present
-						// Rect region_of_interest = Rect(x0, y0, x1-x0, y1-y0);
-						// temp = storage(region_of_interest);
-						// temp = Scalar(255, 255, 255);
-					}
+			for(vector<Rect>::const_iterator sub = nestedcars.begin();
+			    sub != nestedcars.end();
+			    sub++)
+			{
+				// getting center points for bouding a circle over the car detected by checkcascade
+				center.x = cvRound((main->x + sub->x + sub->width*0.5));
+				cen_x = center.x;
+				center.y = cvRound((main->y + sub->y + sub->height*0.5));
+				cen_y = center.y;
+				// if centre of bounding circle is inside the rect boundary
+				// over a threshold the the car is certified
+				if(cen_x>(x0+10) && cen_x<(x1-10) && cen_y>(y0+10) && cen_y<(y1-10))
+				{
+					input_rectangles.push_back(Rect(cvPoint(x0, y0), cvPoint(x1, y1)));
+
+					// masking the detected car to detect second car if present
+					Rect region_of_interest = Rect(x0, y0, x1-x0, y1-y0);
+					temp = storage(region_of_interest);
+					temp = Scalar(255, 255, 255);
 				}
+			}
+
+			drawMarks(input_rectangles);
 		}
 
 		if(image_main_result.empty())
@@ -254,7 +296,7 @@ int main(int argc, const char** argv)
 
 	String input_file_name = argv[1];
 
-	// videoCaptureWrap(input_file_name, &run_find_car);
+	videoCaptureWrap(input_file_name, &run_find_car);
 	imageReadWrap(input_file_name, &run_find_car);
 
 	return 0;
