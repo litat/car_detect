@@ -141,8 +141,8 @@ public:
 		const Point *pts_lower = (const Point*) Mat(exclamationMarkLower).data;
 		int npts_lower = Mat(exclamationMarkLower).rows;
 
-		fillPoly(image_main_result, &pts_upper, &npts_upper, 1, color);
-		fillPoly(image_main_result, &pts_lower, &npts_lower, 1, color);
+		fillPoly(image_main_result, &pts_upper, &npts_upper, 1, color, CV_AA);
+		fillPoly(image_main_result, &pts_lower, &npts_lower, 1, color, CV_AA);
 		// polylines(image_main_result, &pts_upper, &npts_upper, 1, true,
 		//           color, rect.width/60, CV_AA, 0);
 		// polylines(image_main_result, &pts_lower, &npts_lower, 1, true,
@@ -151,34 +151,34 @@ public:
 
 	void drawCarIcon(Rect rect) {
 		Point rect_center = Point(rect.x+rect.width/2, rect.y+rect.height/2);
-		double times = rect.width / 100;
+		double times = rect.width / 40;
 
 		vector<Point> carIcon;
-		carIcon.push_back(rect_center + Point(-26,-35)*times);
-		carIcon.push_back(rect_center + Point(-35,-18)*times);
-		carIcon.push_back(rect_center + Point(-45,-18)*times);
-		carIcon.push_back(rect_center + Point(-45,-11)*times);
-		carIcon.push_back(rect_center + Point(-39,-11)*times);
-		carIcon.push_back(rect_center + Point(-42,-1)*times);
-		carIcon.push_back(rect_center + Point(-42,34)*times);
-		carIcon.push_back(rect_center + Point(-30,34)*times);
-		carIcon.push_back(rect_center + Point(-30,24)*times);
-		carIcon.push_back(rect_center + Point(31,24)*times);
-		carIcon.push_back(rect_center + Point(31,34)*times);
-		carIcon.push_back(rect_center + Point(42,34)*times);
-		carIcon.push_back(rect_center + Point(42,-1)*times);
-		carIcon.push_back(rect_center + Point(39,-11)*times);
-		carIcon.push_back(rect_center + Point(45,-11)*times);
-		carIcon.push_back(rect_center + Point(45,-18)*times);
-		carIcon.push_back(rect_center + Point(35,-18)*times);
-		carIcon.push_back(rect_center + Point(25,-35)*times);
+		carIcon.push_back(rect_center + Point(-5,-7)*times);
+		carIcon.push_back(rect_center + Point(-7,-4)*times);
+		carIcon.push_back(rect_center + Point(-9,-4)*times);
+		carIcon.push_back(rect_center + Point(-9,-2)*times);
+		carIcon.push_back(rect_center + Point(-8,-2)*times);
+		carIcon.push_back(rect_center + Point(-8,0)*times);
+		carIcon.push_back(rect_center + Point(-8,7)*times);
+		carIcon.push_back(rect_center + Point(-6,7)*times);
+		carIcon.push_back(rect_center + Point(-6,5)*times);
+		carIcon.push_back(rect_center + Point(6,5)*times);
+		carIcon.push_back(rect_center + Point(6,7)*times);
+		carIcon.push_back(rect_center + Point(8,7)*times);
+		carIcon.push_back(rect_center + Point(8,0)*times);
+		carIcon.push_back(rect_center + Point(8,-2)*times);
+		carIcon.push_back(rect_center + Point(9,-2)*times);
+		carIcon.push_back(rect_center + Point(9,-4)*times);
+		carIcon.push_back(rect_center + Point(7,-4)*times);
+		carIcon.push_back(rect_center + Point(5,-7)*times);
 
 		const Point *pts = (const Point*) Mat(carIcon).data;
 		int npts = Mat(carIcon).rows;
 
 		Scalar color = Scalar(0, 255, 0);
-		// fillPoly(image_main_result, &pts, &npts, 1, color);
-		polylines(image_main_result, &pts, &npts, 1, true, color, 3, CV_AA, 0);
+		fillPoly(image_main_result, &pts, &npts, 1, color, CV_AA);
+		// polylines(image_main_result, &pts, &npts, 1, true, color, 3, CV_AA, 0);
 	}
 
 	// main function
