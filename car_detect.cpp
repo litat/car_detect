@@ -50,7 +50,7 @@ public:
 
 		if(!src.data)
 		{
-			cout << "src not filled" << endl ;
+			cout << "src not filled" << endl;
 		}
 		else
 		{
@@ -94,37 +94,47 @@ public:
 	void drawMarks(vector<Rect> input_rectangles)
 	{
 		groupRectangles(input_rectangles, 0, 100);
-		Scalar color = CV_RGB(255, 0, 0);
+
 
 		for (int i = 0; i < input_rectangles.size(); ++i)
 		{
 			Rect rect = input_rectangles[i];
-			int width = rect.width/40;
+
 			// draw rectangle
 			// rectangle(image_main_result, rect, color, width);
+			// drawRectangle(rect);
 
 			// draw exclamation mark
-			drawExclamationMark(rect);
+			// drawExclamationMark(rect);
+
+			// draw car icon
+			drawCarIcon(rect);
 		}
+	}
+
+	void drawRectangle(Rect rect) {
+		Scalar color = Scalar(0, 0, 255);
+		int width = rect.width/40;
+		rectangle(image_main_result, rect, color, width);
 	}
 
 	void drawExclamationMark(Rect rect) {
 		Scalar color = Scalar(0, 0, 255);
 		Point rect_center = Point(rect.x+rect.width/2, rect.y+rect.height/2);
-		int times = -1 * rect.width / 30;
+		int times = rect.width / 30;
 
 		// exclamation mark
 		vector<Point> exclamationMarkUpper;
-		exclamationMarkUpper.push_back(rect_center + Point(2, 7) * times);
-		exclamationMarkUpper.push_back(rect_center + Point(2, -2) * times);
-		exclamationMarkUpper.push_back(rect_center + Point(-2, -2) * times);
-		exclamationMarkUpper.push_back(rect_center + Point(-2, 7) * times);
+		exclamationMarkUpper.push_back(rect_center + Point(-2, -7) * times);
+		exclamationMarkUpper.push_back(rect_center + Point(-2, 2) * times);
+		exclamationMarkUpper.push_back(rect_center + Point(2, 2) * times);
+		exclamationMarkUpper.push_back(rect_center + Point(2, -7) * times);
 
 		vector<Point> exclamationMarkLower;
-		exclamationMarkLower.push_back(rect_center + Point(2, -3) * times);
-		exclamationMarkLower.push_back(rect_center + Point(2, -7) * times);
-		exclamationMarkLower.push_back(rect_center + Point(-2, -7) * times);
-		exclamationMarkLower.push_back(rect_center + Point(-2, -3) * times);
+		exclamationMarkLower.push_back(rect_center + Point(-2, 3) * times);
+		exclamationMarkLower.push_back(rect_center + Point(-2, 7) * times);
+		exclamationMarkLower.push_back(rect_center + Point(2, 7) * times);
+		exclamationMarkLower.push_back(rect_center + Point(2, 3) * times);
 
 		const Point *pts_upper = (const Point*) Mat(exclamationMarkUpper).data;
 		int npts_upper = Mat(exclamationMarkUpper).rows;
@@ -137,6 +147,38 @@ public:
 		//           color, rect.width/60, CV_AA, 0);
 		// polylines(image_main_result, &pts_lower, &npts_lower, 1, true,
 		//           color, rect.width/60, CV_AA, 0);
+	}
+
+	void drawCarIcon(Rect rect) {
+		Point rect_center = Point(rect.x+rect.width/2, rect.y+rect.height/2);
+		double times = rect.width / 100;
+
+		vector<Point> carIcon;
+		carIcon.push_back(rect_center + Point(-26,-35)*times);
+		carIcon.push_back(rect_center + Point(-35,-18)*times);
+		carIcon.push_back(rect_center + Point(-45,-18)*times);
+		carIcon.push_back(rect_center + Point(-45,-11)*times);
+		carIcon.push_back(rect_center + Point(-39,-11)*times);
+		carIcon.push_back(rect_center + Point(-42,-1)*times);
+		carIcon.push_back(rect_center + Point(-42,34)*times);
+		carIcon.push_back(rect_center + Point(-30,34)*times);
+		carIcon.push_back(rect_center + Point(-30,24)*times);
+		carIcon.push_back(rect_center + Point(31,24)*times);
+		carIcon.push_back(rect_center + Point(31,34)*times);
+		carIcon.push_back(rect_center + Point(42,34)*times);
+		carIcon.push_back(rect_center + Point(42,-1)*times);
+		carIcon.push_back(rect_center + Point(39,-11)*times);
+		carIcon.push_back(rect_center + Point(45,-11)*times);
+		carIcon.push_back(rect_center + Point(45,-18)*times);
+		carIcon.push_back(rect_center + Point(35,-18)*times);
+		carIcon.push_back(rect_center + Point(25,-35)*times);
+
+		const Point *pts = (const Point*) Mat(carIcon).data;
+		int npts = Mat(carIcon).rows;
+
+		Scalar color = Scalar(0, 255, 0);
+		// fillPoly(image_main_result, &pts, &npts, 1, color);
+		polylines(image_main_result, &pts, &npts, 1, true, color, 3, CV_AA, 0);
 	}
 
 	// main function
